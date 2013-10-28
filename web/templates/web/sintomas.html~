@@ -1,0 +1,160 @@
+{% extends "web/base.html" %}
+
+{% block container %}
+
+  <div class="row">
+
+    <section>  
+        <header>
+          <div class="col-center">
+          <h2>Seleccione la parte del cuerpo donde sufre la principal dolencia</h2>
+          </div>
+        </header>
+	<script type="text/javascript">
+
+		function mapa(){	
+			esp=$("input[type='checkbox']:checked").val();
+			document.location.href = '../atencion/?especialidad_id='+esp
+		}
+
+		function sintomas(hijo){			
+			if (hijo==1){t="Cabeza"}
+			if (hijo==2){t="Cuello"}
+			if (hijo==3){t="Pecho"}
+			if (hijo==4){t="Brazo"}
+			if (hijo==6){t="Hombro"}
+			if (hijo==7){t="Abdomen Superior"}
+			if (hijo==8){t="Abdomen Inferior"}
+			if (hijo==9){t="Pelvis"}
+			if (hijo==10){t="Pierna"} 	
+			$('#titulo').text(t);
+			$('html, body').animate({scrollTop:0}, 1250);
+			if (hijo==null){
+				hijo=$("input[type='checkbox']:checked").val();
+				
+			}
+			$.ajax({
+			    type: "GET",
+			    url: '/app/cargarSintomas?ubic='+hijo,
+			    dataType: "xml",
+			    success: function(xml){
+				   $('#sintomas').empty();
+				   $('#next').show();
+				   $('#mapa').hide();
+				   $('#sintomas').append('<legend id="msj">Seleccione el síntoma:</legend>');		
+				   $(xml).find("sintoma").each(function () {				
+					var nombre=$(this).find("nombre").text()
+					var val=$(this).find("val").text()
+					var checkbox='<label class="label_check" for="sample-check'+val+'">'
+					checkbox=checkbox+'<input name="sample-check'+val+'" id="sample-check'+val+'" value="'+val+'" type="checkbox">'
+ 				        checkbox=checkbox+nombre+'</label>'
+					$('#sintomas').append(checkbox)
+				   });
+					//Iniciar los checkbox
+					$('body').addClass('has-js');
+				        $('.label_check, .label_radio').click(function(){		
+				            setupLabel();
+				        });
+        				setupLabel();
+				   $(xml).find("paso").each(function () {				
+					$('#next').hide();
+					$('#mapa').show();
+					$('#msj').text("Especialidad Sugerida:")
+					$("input[type='checkbox']").click();
+
+				   });	
+				 }               
+			   });
+		}
+	</script>
+
+         <div id="human-body">
+          <img src="{{STATIC_URL}}images/body.png" alt="cuerpo" width="289" height="640" border="0" usemap="#Map" />
+          
+          <map name="Map" id="Map">
+            <area shape="poly" coords="148,40" href="#" />
+            <area shape="poly" onclick="javascript:sintomas(1);" coords="120,22,123,11,123,11,132,6,145,1,162,3,172,15,175,28,175,37,179,38,178,52,172,56,169,69,161,79,153,85,144,85,133,81,126,71,121,56,116,46,117,37" href="#myModal" data-toggle="modal"/><!--cabeza-->
+            <area shape="poly" onclick="javascript:sintomas(2);" coords="126,73,126,89,120,95,131,99,144,103,153,102,162,100,171,98,173,95,174,91,170,87,169,85,169,76,169,71,161,80,155,86,147,86,140,84,136,82,131,79" href="#myModal" data-toggle="modal"/><!--cuello-->
+            <area shape="poly" onclick="javascript:sintomas(3);" coords="87,153,90,137,96,123,104,114,119,109,134,116,157,118,170,115,185,112,196,115,202,121,206,128,208,135,208,148,214,157,210,172,204,179,201,186,193,191,174,191,156,191,146,185,142,190,119,191,105,188,94,181,90,171" href="#myModal" data-toggle="modal"/><!--pecho-->
+            <area shape="poly" onclick="javascript:sintomas(6);" coords="93,129,79,126,66,121,75,112,90,106,99,106,108,103,114,100,121,96,130,99,137,102,141,104,149,105,158,104,162,102,168,101,171,100,174,97,176,92,183,98,189,102,195,103,218,109,234,122,222,124,203,123,198,116,191,113,187,112,179,112,174,115,169,116,162,117,153,118,143,117,136,116,126,113,122,111,117,110,111,111,107,113,101,118,97,121,95,125,93,130" href="#myModal" data-toggle="modal"/><!--hombro-->
+            <area shape="poly" onclick="javascript:sintomas(7);" coords="98,185,99,203,99,213,102,222,122,219,136,212,147,211,160,215,168,221,179,223,195,223,202,221,203,213,203,207,204,198,204,188,206,182,200,187,196,191,185,192,166,192,156,192,147,186,141,191,129,192,117,192,112,191,106,189" href="#myModal" data-toggle="modal"/><!--abdomen sup-->
+            <area shape="poly" onclick="javascript:sintomas(8);" coords="102,222,119,221,132,215,143,213,155,214,164,219,172,223,185,225,197,225,198,231,198,239,199,249,200,255,176,266,160,267,145,268,126,267,118,267,108,264,102,260" href="#myModal" data-toggle="modal"/><!--abdomen inf-->
+            <area shape="poly" onclick="javascript:sintomas(9);" coords="101,262,117,268,127,268,144,269,158,269,174,267,182,264,190,261,195,258,199,256,204,266,205,277,208,288,208,299,210,308,195,314,181,320,172,329,165,332,151,342,147,346,141,341,130,335,121,331,109,327,102,326,92,323,86,321,89,294,95,277" href="#myModal" data-toggle="modal"/><!--abdomen pelvis-->
+            <area shape="poly" onclick="javascript:sintomas(4);" coords="204,123,215,125,224,126,232,123,240,129,243,136,244,146,242,155,242,168,245,179,248,195,245,209,244,220,245,228,245,240,248,257,249,274,249,288,250,309,249,329,250,339,250,356,247,369,240,381,236,384,235,373,237,358,235,351,229,347,224,355,218,362,215,364,216,351,222,334,225,319,224,297,218,277,216,261,216,241,216,226,210,207,208,191,210,175,216,160,210,147" href="#myModal" data-toggle="modal"/><!--brazo-->
+            <area shape="poly" onclick="javascript:sintomas(4);" coords="92,129,82,128,73,127,68,121,64,135,64,144,63,151,58,161,59,169,59,190,58,203,55,217,51,230,52,249,51,275,49,300,46,313,42,325,38,338,39,347,44,353,50,356,55,359,64,359,70,357,74,353,77,349,77,335,75,325,70,317,70,311,76,291,83,271,85,257,84,225,87,215,92,208,97,193,95,183,89,177,86,160,88,144" href="#myModal" data-toggle="modal"/><!--brazo-->
+            <area shape="poly" onclick="javascript:sintomas(10);" coords="86,322,112,331,128,335,139,344,145,347,156,343,166,333,183,326,189,320,196,315,206,312,210,311,210,337,210,352,212,383,206,412,203,435,199,458,199,478,203,499,202,513,198,534,194,557,190,576,192,588,191,599,192,620,204,635,194,639,178,638,168,636,158,635,154,632,161,617,164,604,160,588,160,573,160,559,158,545,157,515,157,499,157,479,158,459,157,449,148,397,147,374,146,361,146,385,142,400,142,416,140,427,136,457,142,488,138,550,136,589,141,602,142,613,131,616,123,626,85,627,84,615,110,589,84,376" href="#myModal" data-toggle="modal"/><!--pierna-->
+          </map>
+     
+        </div>
+    </section>
+
+<!--<a data-toggle="modal" href="#myModal" class="btn btn-primary">Launch modal</a>-->
+<!--<a href="#" data-rel="dialog">Open dialog</a>-->
+
+    <!--<div role="dialog" class="ui-dialog-contain ui-corner-all ui-overlay-shadow">-->
+    <div class="modal fade" id="myModal">
+	<div class="modal-dialog">
+          <div class="modal-content">
+                  <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                          <h4 id="titulo" class="modal-title">Dolor de Cabeza</h4>
+                  </div>
+                  <div class="modal-body">
+                          <!--<div id='sintomas'></div>-->
+                          <form>
+                                  <fieldset id="sintomas">
+                                  <legend>Seleccione:</legend>
+                                  <label class="label_check" for="sample-check">
+					<input name="sample-check" id="sample-check" value="1" type="checkbox" >
+					Sample Label
+ 				  </label>
+				  </fieldset>
+				
+                          </form>
+			<script>
+			
+		    function setupLabel() {
+			if ($('.label_check input').length) {
+			    $('.label_check').each(function(){ 
+				$(this).removeClass('c_on');
+			    });
+			    $('.label_check input:checked').each(function(){ 
+				$(this).parent('label').addClass('c_on');
+			    });                
+			};
+			if ($('.label_radio input').length) {
+			    $('.label_radio').each(function(){ 
+				$(this).removeClass('r_on');
+			    });
+			    $('.label_radio input:checked').each(function(){ 
+				$(this).parent('label').addClass('r_on');
+			    });
+			};
+		    };
+		    $(document).ready(function(){
+			$('body').addClass('has-js');
+			$('.label_check, .label_radio').click(function(){
+			    setupLabel();
+			});
+			setupLabel(); 
+		    });
+
+			</script>
+	
+                  </div>
+                  <div class="modal-footer" id="footer">
+                    <a href="#" data-dismiss="modal" class="btn btn-danger btn-lg">Cerrar</a>
+                    <a href="#" id="next" class="btn btn-primary btn-lg" onclick="javascript:sintomas()">Continuar</a>
+                    <a href="#" id="mapa" class="btn btn-success btn-lg" onclick="javascript:mapa()" style="display:none">ver Mapa</a> 
+                  </div>
+		
+          </div>
+    	</div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+

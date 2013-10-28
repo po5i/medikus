@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Medikus</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="description" content="Sitio Web de consulta de centros médicos cercanos" />
+		<meta name="keywords" content="centros médicos, hospital, clínica, maternidad, salud" />
+			
+                <!-- jquery  -->
+                <script src="{{STATIC_URL}}jquery.mobile/jquery.js"></script>
+              
+                <!-- bootstrap -->
+                <link rel="stylesheet" href="{{STATIC_URL}}web-inner/css/bootstrap.css" />
+                <link rel="stylesheet" href="{{STATIC_URL}}web-inner/css/bootstrap-theme.css" />
+                <script src="{{STATIC_URL}}web-inner/js/bootstrap.js"></script>
+               
+                <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,900,300italic" rel="stylesheet" />
+                <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css' />
+
+		<script src="{{STATIC_URL}}web-inner/js/jquery.dropotron.js"></script>
+		<script src="{{STATIC_URL}}web-inner/js/config.js"></script>
+		<script src="{{STATIC_URL}}web-inner/js/skel.min.js"></script>
+		<script src="{{STATIC_URL}}web-inner/js/skel-panels.min.js"></script>
+		<noscript>
+			<link rel="stylesheet" href="{{STATIC_URL}}web-inner/css/skel-noscript.css" />
+			<link rel="stylesheet" href="{{STATIC_URL}}web-inner/css/style.css" />
+			<link rel="stylesheet" href="{{STATIC_URL}}web-inner/css/style-desktop.css" />
+		</noscript>
+		<!--[if lte IE 8]>
+                <script src="{{STATIC_URL}}web/js/html5shiv.js"></script>
+                <link rel="stylesheet" href="{{STATIC_URL}}web-inner/css/ie8.css" />
+                <![endif]-->
+
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+
+    <link rel="icon" type="image/png" href="/static/images/m_128.png" />
+    {% block other_head %}{% endblock %}
+    </head>
+
+    <body class="homepage">
+          <!-- Wrap all page content here -->
+        <div id="header-wrapper">
+          <div class="container">
+            <div class="row">
+              <div class="12u">
+                 <!-- Header -->
+                  <section id="header">
+                    <!-- Logo -->
+                      <h1>Medikus</h1>
+                    <!-- Nav -->
+                      <nav id="nav">
+                          <ul>
+                              <li><a href="/">Página inicial</a></li>
+                              <li><a href="/app/atencion">Centros médicos</a></li>
+                              <li><a href="/app/sintomas">Síntomas</a></li>
+                              <li><a href="/app/especializacion">Especialidades</a></li>
+                              <li><a href="/app/emergencia">Emergencia</a></li>
+                              <li><a href="/app/quienes">Quienes somos</a></li>
+                              <!--li><a href="/app/ayuda">Ayuda</a> </li-->
+                          </ul>
+                      </nav>
+                  </section>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="main-wrapper">
+              <!--div class="row">
+		<div class="12u"-->
+                  {% block container %}{% endblock %}
+                <!--/div>
+              </div-->
+        </div>
+
+        <div id="footer-wrapper">
+          <div class="row">
+            <div class="12u">
+                <!-- Copyright -->
+                <div id="copyright">
+                  <ul class="links">
+                    <li>&copy;2013-Derechos Reservados</li>
+                    <li>Diseño adaptado de: <a href="http://html5up.net">HTML5 UP</a></li>
+                  </ul>
+                </div>
+            </div>  
+          </div>
+        </div>      
+
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+          ga('create', 'UA-45186660-1', 'medikus-ec.info');
+          ga('send', 'pageview');
+
+        </script>
+     </body>    
+</html>

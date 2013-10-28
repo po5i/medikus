@@ -1,0 +1,23 @@
+{% extends "web/base.html" %}
+
+{% block container %}
+<div class="row">
+<section>
+	<header>
+		<div class="col-center">
+		     <h2>Seleccione la especialidad que desea buscar</h2>
+		</div>
+	</header>
+	</div>
+        
+		<div class="list-group">				
+		{% for e in especialidades %}
+			<a class="list-group-item" href="/app/atencion/?especialidad_id={{e.id}}">
+			<p> {{e.nombre}}</p>
+			<span class="badge">{{e.badge}}</span>
+			</a>
+		{% endfor %}
+		</div>
+	
+</section>
+{% endblock %}
