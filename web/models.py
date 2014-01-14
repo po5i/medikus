@@ -49,6 +49,7 @@ class Lugar(models.Model):
   imagenologia = models.NullBooleanField(null=True,blank=True)
   especialidades = models.ManyToManyField(MaestroEspecialidad)
   seguros = models.ManyToManyField(MaestroSeguro)
+  foursquare = models.CharField(max_length=256,default="")
 
   def __unicode__(self):
     return u'%s'%(self.nombre)

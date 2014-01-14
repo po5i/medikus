@@ -24,10 +24,10 @@
 	    laboratorio: "{{waypoint.laboratorio}}",
 	    farmacia: "{{waypoint.farmacia}}",
 	    seguros: "{{waypoint.seguros_csv}}",
-	    lat: {{waypoint.latitud }},
-	    lng: {{waypoint.longitud }},
+	    lat: {{waypoint.latitud|stringformat:"f"}},
+	    lng: {{waypoint.longitud|stringformat:"f"}},
 	    id: {{waypoint.id}},
-	    dist: "{{waypoint.distance.km|floatformat:2}}"
+	    dist: {{waypoint.distance|floatformat:"f"}}
 	};
 	{% endfor %}
 
@@ -74,9 +74,14 @@
 			//div.innerHTML = waypoint.name+' ('+waypoint.dist+' Km.)';
 	    	//div.id = waypoint.id;
 	    	var html_array= '<h4>'+ waypoint.name +'</h4>'+
-		                  	'<p>'+ waypoint.direccion+' ('+waypoint.dist+' Km.) Tel: <a class="med-tel" href="tel:'+waypoint.telefono+'">'+ waypoint.telefono+'</a></p>'+
-		                  	'<p><span class="label-cm">Convenio con las aseguradoras: </span>'+ waypoint.seguros+'</p>';
+		                  	'<p>(a '+waypoint.dist+' metros)</p>'+
+		                  	'<p>'+ waypoint.direccion+' - <a class="med-tel" href="tel:'+waypoint.telefono+'">'+ waypoint.telefono+'</a></p>';
 			
+					//Seguros
+					if ((waypoint.seguros)) {
+					    html_array = html_array + '<p><span class="label-cm">Convenio con las aseguradoras: </span>'+ waypoint.seguros+'</p>';
+					}
+
 					//Emergencia
 					if ((waypoint.emergencia).localeCompare('True')==0) {
 					    html_array = html_array + '<span class="ambulance-icon"></span>';
@@ -230,10 +235,10 @@
 	}
 
 	function compare(a,b) {
-		aa = a.dist.replace(",",".");
-		bb = b.dist.replace(",",".");
-		aaa = parseFloat(aa);
-		bbb = parseFloat(bb);
+		//aa = a.dist.replace(",",".");
+		//bb = b.dist.replace(",",".");
+		aaa = parseFloat(a);
+		bbb = parseFloat(b);
 		if (aaa < bbb)
 			return -1;
 		if (aaa > bbb)
@@ -315,6 +320,10 @@
 	<div class="collapse navbar-collapse navbar-ex1-collapse">
 	  <ul class="nav navbar-nav navbar-right">
 	    
+	    <li class="dropdown">
+	      <img src="{{STATIC_URL}}images/poweredByFoursquare_gray.png" style="height:50px" />
+	    </li>
+
 	    <li class="dropdown">
 	      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Ver todos</a>
 	    </li>

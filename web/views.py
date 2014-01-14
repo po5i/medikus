@@ -13,14 +13,63 @@ def index(request):
     context = {'variable': "Hello"}
     return render(request, 'web/index.html', context)
 
+def browse_foursquare(latitud,longitud):
+    #waypoints = Lugar.objects.all()
+    waypoints = []
+    dummy_id = 0
+
+    import urllib2
+    import json
+
+    url = "https://api.foursquare.com/v2/venues/search?ll="+latitud+","+longitud+"&client_id=CE4CTYXWWAXMD2GIHVTEF21CPIWRRDBEV5SHHP5ZHQVQWXS0&client_secret=JSSJUHGBJCTTYJMJKXUOFZQNZFKC31VN2DZUQEATMTISZNCI&v=20140113&intent=browse&radius=10000&categoryId=4bf58dd8d48988d104941735"
+    f = urllib2.urlopen(url)
+    response = f.read()
+    response_json = json.loads(response)
+
+    for res in response_json["response"]["venues"]:
+        dummy_id = dummy_id + 1
+
+        #check in the database for more metadata
+        lugar = Lugar.objects.filter(foursquare=res["id"])[:1]       
+
+        if "crossStreet" in res["location"]:
+            direccion = res["location"]["address"]+" & "+res["location"]["crossStreet"]
+        elif "address" in res["location"]:
+            direccion = res["location"]["address"]
+        else:
+            direccion = lugar[0].direccion if lugar else ""
+
+        way = {
+                'id':dummy_id,
+                'foursquare_id':res["id"],
+                'nombre':res["name"],
+                'latitud':res["location"]["lat"],
+                'longitud':res["location"]["lng"],
+                'distance':res["location"]["distance"],
+                'direccion':direccion,
+                #'direccion':lugar[0].direccion if lugar else "",
+                'telefono':lugar[0].telefono if lugar else "",
+                'emergencia':lugar[0].emergencia if lugar else "",
+                'tipo':lugar[0].tipo if lugar else "",
+                'imagenologia':lugar[0].imagenologia if lugar else "",
+                'laboratorio':lugar[0].laboratorio if lugar else "",
+                'farmacia':lugar[0].farmacia if lugar else "",
+                'seguros':lugar[0].seguros_csv if lugar else "",
+        }
+        waypoints.append(way)
+
+    return waypoints
+
 @csrf_exempt
 def atencion(request):
     #distance_from_point = {'km':'10'}
     latitud = request.GET.get('lat','-2.165731')    #default
     longitud = request.GET.get('lng','-79.892000')
     current_point = geos.fromstr("POINT(%s %s)" % (longitud, latitud))
-    waypoints = Lugar.objects.all()                         #filter(ubicacion__distance_lte=(current_point, measure.D(**distance_from_point)))
-    waypoints = waypoints.distance(current_point).order_by('distance')
+    #waypoints = Lugar.objects.all()                         #filter(ubicacion__distance_lte=(current_point, measure.D(**distance_from_point)))
+    #waypoints = waypoints.distance(current_point).order_by('distance')
+
+    waypoints = browse_foursquare(latitud,longitud)
 
     #maestros
     #especialidades = MaestroEspecialidad.objects.all()  #todos
@@ -94,8 +143,9 @@ def filtro(request):
     longitud = request.GET.get('my_long')
     current_point = geos.fromstr("POINT(%s %s)" % (longitud, latitud))
 
-    waypoints = Lugar.objects.all()
-
+    #waypoints = Lugar.objects.all()
+    waypoints = browse_foursquare(latitud,longitud)
+    """
     if especialidad_id != "" and especialidad_id != None:
         especialidad_id = int(especialidad_id)
         waypoints = Lugar.objects.filter(especialidades__id__exact=especialidad_id)
@@ -104,7 +154,7 @@ def filtro(request):
         waypoints = Lugar.objects.filter(tipo__id__exact=tipo_id)
 
     waypoints = waypoints.distance(current_point).order_by('distance')
-
+    """
     return render(request, 'web/filtro.html',{'waypoints': waypoints})
 
 def cargarSintomas(request):
@@ -158,6 +208,7 @@ def generar_open_data(request):
                         "tipo":str(lugar.tipo),
                         "especialidades":especialidades,
                         "seguros":seguros,
+                        "foursquare_id":lugar.foursquare,
             })
 
     return HttpResponse(simplejson.dumps(data), mimetype='application/json;charset=UTF-8')
