@@ -49,7 +49,9 @@ class Lugar(models.Model):
   imagenologia = models.NullBooleanField(null=True,blank=True)
   especialidades = models.ManyToManyField(MaestroEspecialidad)
   seguros = models.ManyToManyField(MaestroSeguro)
-  foursquare = models.CharField(max_length=256,default="")
+  foursquare = models.CharField(max_length=256,default="",null=True,blank=True)
+  verified = models.BooleanField(default=False)
+  published = models.BooleanField(default=True)
 
   def __unicode__(self):
     return u'%s'%(self.nombre)

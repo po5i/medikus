@@ -14,4 +14,5 @@ urlpatterns = patterns('',
     url(r'^emergencia_mail/$', views.emergencia_mail),
     url(r'^generar_open_data/$', views.generar_open_data),
     url(r'^cargarSintomas/$', views.cargarSintomas),
+    url(r'^store/$', views.store),
 )

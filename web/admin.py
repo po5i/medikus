@@ -5,7 +5,7 @@ from django.contrib.auth.admin import *
 
 
 class LugarAdmin(gisadmin.OSMGeoAdmin):
-  pass
+  list_display = ('nombre','foursquare')
 
 class SintomaAdmin(admin.ModelAdmin):
   filter_horizontal = ('sintomas',)

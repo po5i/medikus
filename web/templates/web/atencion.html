@@ -27,7 +27,9 @@
 	    lat: {{waypoint.latitud|stringformat:"f"}},
 	    lng: {{waypoint.longitud|stringformat:"f"}},
 	    id: {{waypoint.id}},
-	    dist: {{waypoint.distance|floatformat:"f"}}
+	    dist: {{waypoint.distance|floatformat:"f"}},
+	    source: "{{waypoint.source}}",
+	    foursquare_id: "{{waypoint.foursquare}}"
 	};
 	{% endfor %}
 
@@ -107,6 +109,15 @@
 					if ((waypoint.farmacia).localeCompare('True')==0) {
 					    html_array = html_array + '<span class="pharmacy-icon"></span>';
 					}*/
+
+					if(waypoint.source == "4sq") {
+						html_array = html_array + '<div class="metadata_info">';
+						html_array = html_array + '<a href="#" onclick="addMetaInfo(\''+waypoint.foursquare_id+'\',\''+waypoint.name+'\',\''+waypoint.direccion+'\',\''+waypoint.lat+'\',\''+waypoint.lng+'\')">Sugerir actualización</a>';
+						html_array = html_array + '<div class="metadata_form" id="lugar_'+waypoint.foursquare_id+'"></div>';
+						html_array = html_array + '</div>';
+					}
+
+
 					
 		atag.innerHTML = html_array;
 		atag.id = key; //waypoint.id;	//po5i: cambio al key
@@ -119,9 +130,14 @@
 		function activateWaypoints() {			
 	        ///Add waypoint click handler
 	        $('.list-group-item').each(function () {
-	            $(this).click(function() {
+	            $(this).click(function(e) {
+	            	console.log("click function");
+	            	if($(e.target).parents('.metadata_info').length > 0){		//exclude
+			            e.preventDefault();
+			            return;
+			        }
 	                var waypoint = waypointByID[this.id];
-			var center = new google.maps.LatLng(waypoint.lat, waypoint.lng);
+					var center = new google.maps.LatLng(waypoint.lat, waypoint.lng);
 	                //if (marker) marker.setMap();
 	                //marker = new google.maps.Marker({map: map, position: center});
 	                //map.panTo(center);
@@ -235,10 +251,10 @@
 	}
 
 	function compare(a,b) {
-		//aa = a.dist.replace(",",".");
-		//bb = b.dist.replace(",",".");
-		aaa = parseFloat(a);
-		bbb = parseFloat(b);
+		aa = a.dist;//.replace(",",".");
+		bb = b.dist;//.replace(",",".");
+		aaa = parseFloat(aa);
+		bbb = parseFloat(bb);
 		if (aaa < bbb)
 			return -1;
 		if (aaa > bbb)
@@ -260,6 +276,65 @@
                 	console.log("FilterDo");
                 	console.log(parametros);
                 	makeMap(my_lat,my_long);                	
+                }
+        });		
+	}
+
+	function addMetaInfo(foursquare_id,nombre,direccion,lat,lng){
+		console.log(foursquare_id);
+		var container = "#lugar_"+foursquare_id;
+
+		var tipos_op = "";
+		{% for t in tipos %}
+				tipos_op += "<option value='{{t.id}}'>{{t.nombre}}</option>";
+		{% endfor %}
+
+		$(container).empty();
+		$(container).append("<div><label>Teléfono:</label> <input type='text' id='telefono'></div>");
+		$(container).append("<div><label>Emergencia:</label> <select id='emergencia'><option value='1'>Si</option><option value='0'>No</option></select><div>");
+		$(container).append("<div><label>Imagenologia:</label> <select id='imagenologia'><option value='1'>Si</option><option value='0'>No</option></select><div>");
+		$(container).append("<div><label>Laboratorio:</label> <select id='laboratorio'><option value='1'>Si</option><option value='0'>No</option></select><div>");
+		$(container).append("<div><label>Farmacia:</label> <select id='farmacia'><option value='1'>Si</option><option value='0'>No</option></select><div>");
+		$(container).append("<div><label>Tipo:</label> <select id='tipo'>"+tipos_op+"</select><div>");
+		$(container).append("<div><input type='button' value='Guardar' onclick='addMetaInfoSave(\""+foursquare_id+"\",\""+nombre+"\",\""+direccion+"\",\""+lat+"\",\""+lng+"\")'><div>");
+		return false;
+	}
+
+	function addMetaInfoSave(foursquare_id,nombre,direccion,lat,lng){
+		console.log(foursquare_id);
+		var container = "#lugar_"+foursquare_id;
+
+		var telefono = $(container).find("#telefono").val();
+		var emergencia = $(container).find("#emergencia").val();
+		var imagenologia = $(container).find("#imagenologia").val();
+		var laboratorio = $(container).find("#laboratorio").val();
+		var farmacia = $(container).find("#farmacia").val();
+		var tipo = $(container).find("#tipo").val();
+
+		//save by ajax
+		$.ajax({
+                data:  {
+                			nombre:nombre,
+                			direccion:direccion,
+                			lat:lat,
+                			lng:lng,
+                			telefono:telefono,
+                			emergencia:emergencia,
+                			imagenologia:imagenologia,
+                			laboratorio:laboratorio,
+                			farmacia:farmacia,
+                			tipo:tipo,
+                			foursquare_id:foursquare_id,
+                },
+                url:   "/app/store/",
+                type:  'post',
+                success:  function (response) {
+                	console.log(response);
+                	if(response == "OK")
+                		alert("Muchas gracias por su colaboración");
+                	else
+                		alert("Ocurrió un error, favor contáctese con nosotros")
+                	$(container).empty();
                 }
         });		
 	}
@@ -287,6 +362,17 @@
     }
    	.dos_columnas ul{ width:760px; margin-bottom:20px; overflow:hidden; border-top:1px solid #ccc; } 
 	.dos_columnas li{ line-height:1.5em; border-bottom:1px solid #ccc; float:left; display:inline; width:50%;} 
+
+	.metadata_form label{
+		width:145px;
+		display: inline-block;
+		background: #dedede;
+		padding:5px;
+	}
+
+	.metadata_form {
+		padding:5px;
+	}
 
 </style>
 

@@ -39,9 +39,9 @@ def browse_foursquare(latitud,longitud):
         else:
             direccion = lugar[0].direccion if lugar else ""
 
-        way = {
+        way = {                
                 'id':dummy_id,
-                'foursquare_id':res["id"],
+                'foursquare':res["id"],
                 'nombre':res["name"],
                 'latitud':res["location"]["lat"],
                 'longitud':res["location"]["lng"],
@@ -55,10 +55,38 @@ def browse_foursquare(latitud,longitud):
                 'laboratorio':lugar[0].laboratorio if lugar else "",
                 'farmacia':lugar[0].farmacia if lugar else "",
                 'seguros':lugar[0].seguros_csv if lugar else "",
+                'source': 'local' if lugar else '4sq',
         }
         waypoints.append(way)
 
     return waypoints
+
+
+def normalize_waypoins(waypoints):
+    out = []
+    for wp in waypoints:
+        way = {                
+                'id':wp.id,
+                'foursquare':wp.foursquare,
+                'nombre':wp.nombre,
+                'latitud':wp.ubicacion.y,
+                'longitud':wp.ubicacion.x,
+                'distance':wp.distance if wp.distance else 0,
+                'direccion':wp.direccion,
+                'telefono':wp.telefono,
+                'emergencia':wp.emergencia,
+                'tipo':wp.tipo,
+                'imagenologia':wp.imagenologia ,
+                'laboratorio':wp.laboratorio,
+                'farmacia':wp.farmacia,
+                'seguros':wp.seguros_csv,
+                'source': 'local',
+        }
+        out.append(way)
+
+    return out
+
+
 
 @csrf_exempt
 def atencion(request):
@@ -145,17 +173,20 @@ def filtro(request):
 
     #waypoints = Lugar.objects.all()
     waypoints = browse_foursquare(latitud,longitud)
-    """
+    
+    #Si el usuario quiere datos filtrados, no se usaría 4sq
     if especialidad_id != "" and especialidad_id != None:
         especialidad_id = int(especialidad_id)
         waypoints = Lugar.objects.filter(especialidades__id__exact=especialidad_id)
+        waypoints = waypoints.distance(current_point).order_by('distance')
+        waypoints = normalize_waypoins(waypoints)
     if tipo_id != "" and tipo_id != None:
         tipo_id = int(tipo_id)
         waypoints = Lugar.objects.filter(tipo__id__exact=tipo_id)
-
-    waypoints = waypoints.distance(current_point).order_by('distance')
-    """
-    return render(request, 'web/filtro.html',{'waypoints': waypoints})
+        waypoints = waypoints.distance(current_point).order_by('distance')    
+        waypoints = normalize_waypoins(waypoints)
+    
+    return render(request, 'web/filtro.html',{'waypoints': waypoints})  #,content_type='application/json'
 
 def cargarSintomas(request):
     ubicacion = request.GET.get('ubic')
@@ -218,3 +249,58 @@ def quienes(request):
 
 def ayuda(request):
     return render(request, 'web/ayuda.html')
+
+@csrf_exempt
+def store(request):
+    nombre = request.POST.get("nombre")
+    direccion = request.POST.get("direccion")
+    lat = request.POST.get("lat")
+    lng = request.POST.get("lng")
+    telefono = request.POST.get("telefono")
+    emergencia = int(request.POST.get("emergencia"))
+    imagenologia = int(request.POST.get("imagenologia"))
+    laboratorio = int(request.POST.get("laboratorio"))
+    farmacia = int(request.POST.get("farmacia"))
+    tipo = request.POST.get("tipo")
+    foursquare_id = request.POST.get("foursquare_id")
+
+    try:
+        lugar = Lugar.objects.get(foursquare=foursquare_id)
+        lugar.nombre = nombre
+        lugar.telefono = telefono
+        lugar.emergencia = emergencia
+        lugar.imagenologia = imagenologia
+        lugar.laboratorio = laboratorio
+        lugar.tipo_id = tipo_id
+        lugar.save()
+    except Lugar.DoesNotExist:
+        lugar = Lugar(
+                        nombre=nombre,
+                        direccion=direccion,
+                        ubicacion="POINT ("+lng+" "+lat+")",
+                        telefono=telefono,
+                        emergencia=emergencia,
+                        imagenologia=imagenologia,
+                        laboratorio=laboratorio,
+                        farmacia=farmacia,
+                        tipo_id=tipo,
+                        foursquare=foursquare_id,
+        )
+        lugar.save()
+    
+    """
+    from_email = 'Medikus <medikus.ec@gmail.com>'
+    subject = 'Notificación de nueva metadata'
+    tos = ["medikus.ec@gmail.com"]
+    message = ('<h2>Nueva metadata ingresada</h2>'
+                    '<p>Nombre: '+nombre+'</p>'
+                    '<p>Telefono: '+telefono+'</p>'
+                    '<p>Foursquare_id: '+foursquare_id+'</p>'
+                    '<br/><p>Este mensaje ha sido generado autom&aacute;ticamente por Medikus</p>'
+    )
+
+    msg = EmailMultiAlternatives(subject, "", from_email,tos)
+    msg.attach_alternative(message, "text/html")
+    msg.send()
+    """
+    return HttpResponse("OK", content_type="text/plain")
