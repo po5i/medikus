@@ -6,7 +6,7 @@ from web.models import *
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.gis import geos
 from django.contrib.gis import measure
-from django.utils import simplejson
+#from django.utils import simplejson
 from django.core.mail import EmailMessage,EmailMultiAlternatives
 
 def index(request):
@@ -242,7 +242,7 @@ def generar_open_data(request):
                         "foursquare_id":lugar.foursquare,
             })
 
-    return HttpResponse(simplejson.dumps(data), mimetype='application/json;charset=UTF-8')
+    return HttpResponse(json.dumps(data), mimetype='application/json;charset=UTF-8') #simplejson deprecated
     	
 def quienes(request):
     return render(request, 'web/quienes.html')

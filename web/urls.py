@@ -1,8 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import  url
 
 from web import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^atencion/$', views.atencion),
     url(r'^sintomas/$', views.sintomas),
@@ -15,4 +15,4 @@ urlpatterns = patterns('',
     url(r'^generar_open_data/$', views.generar_open_data),
     url(r'^cargarSintomas/$', views.cargarSintomas),
     url(r'^store/$', views.store),
-)
+]
